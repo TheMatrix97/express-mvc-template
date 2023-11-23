@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  workspace:
+    image: mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye
+    volumes:
+      - ..:/workspace:cached
+    # [Optional] Required for ptrace-based debuggers like C++, Go, and Rust
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+  db:
+    hostname: db
+    image: "mysql:8.0.25"
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    volumes:
+    - db-data:/var/lib/mysql
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: "root_password"
+      MYSQL_DATABASE: "database"
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+volumes:
+  db-data: {}
